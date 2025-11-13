@@ -1,20 +1,20 @@
 import * as ROT from "rot-js";
 
 class NPC {
-    constructor(x,y, greeting = "", action = null, char = "") {
+    constructor(x,y, greeting = "", action = action, char = "") {
         this.x = x;
         this.y = y;
         this.char = char;
         this.greeting = greeting;
-        this.action = null;
+        this.action = action;
     }
 
     interact(display) {
         if (this.greeting) {
-            display.drawText(1, 20, this.greeting);
+            messageLog.push(this.greeting);
         }
         if (typeof this.action === "function") {
-            this.action;
+            this.action(display);
         }
     }
 }
@@ -34,10 +34,18 @@ class Player {
 
 
 const player = new Player();
-const Jeff = new NPC(5, 3, "I have tons of socks for you", null, "&")
-const Janet = new NPC(7 , 7, "Please get away from me man...I'm A WOMAN I NEED HELP", null, "J")
+const Jeff = new NPC(5, 3, "I have tons of socks for you", (display) => {
+    player.goodness += 5;
+    display.drawText(1, 21, "That was better than a fresh pair of socks.")
+}, "&");
+const Janet = new NPC(7 , 7, "Please get away from me man...I'm A WOMAN I NEED HELP", (display) => {
+    player.badness += 5;
+    display.drawText(1, 21, "Ohhh I like a bad boy.");
+}, "J");
 const npcList = [Jeff, Janet]
 const display = new ROT.Display()
+const messageLog = [];
+
 document.body.appendChild(display.getContainer());
 
 function draw() {
@@ -47,46 +55,73 @@ function draw() {
     for (let npc of npcList) {
         display.draw(npc.x, npc.y, npc.char, "#aa0", "#000")
     }
+
+    while (messageLog.length > 5) {
+        messageLog.shift();
+    }
+
+    for (let i = 0; i < messageLog.length; i++) {
+        display.drawText(1, 20 +i, messageLog[i]);
+    }
+}
+
+
+
+function getAdjacentNPC(player, npcList) {
+    for (let npc of npcList) {
+        const dx = Math.abs(npc.x - player.x);
+        const dy = Math.abs(npc.y - player.y);
+        if ((dx + dy) === 1) {
+            return npc;
+        }
+    }
+    return null;
+}
+
+function isBlocked(x, y) {
+    for (let npc of npcList) {
+        if (npc.x === x && npc.y === y) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function handleInput(e) {
+    // Save current position
+    let newX = player.x;
+    let newY = player.y;
+
+    // Move player
+    switch (e.key) {
+        case "ArrowUp": newY--; break;
+        case "ArrowDown": newY++; break;
+        case "ArrowLeft": newX--; break;
+        case "ArrowRight": newX++; break;
+        case "z": {
+            const nearbyNPC = getAdjacentNPC(player,npcList);
+            if (nearbyNPC) {
+                nearbyNPC.interact(display);
+            }
+        }
+        default: return;
+    }
+
+    if (!isBlocked(newX, newY)) {
+        player.x = newX;
+        player.y = newY;
+    }
+
+    draw();
 }
 
 draw();
+gameLoop();
+
 
 function gameLoop() {
     draw();
     requestAnimationFrame(gameLoop);
 }
 
-gameLoop();
-
-
-
 window.addEventListener("keydown", handleInput);
-
-function handleInput(e) {
-    // Save current position
-    const prevX = player.x;
-    const prevY = player.y;
-
-    // Move player
-    switch (e.key) {
-        case "ArrowUp": player.y--; break;
-        case "ArrowDown": player.y++; break;
-        case "ArrowLeft": player.x--; break;
-        case "ArrowRight": player.x++; break;
-        default: return;
-    }
-    for (let npc of npcList) {
-        if (player.x === npc.x && player.y === npc.y) {
-            player.x = prevX;
-            player.y = prevY;
-            draw();
-            npc.interact(display);
-            return;
-        }
-    }
-    draw();
-}
-
-
-
-
