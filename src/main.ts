@@ -1,10 +1,11 @@
 import * as ROT from "rot-js";
 
 class NPC {
-    constructor(x,y, greeting = "", action = action, char = "") {
+    constructor(x,y, greeting = "", action = action, char = "", name = "") {
         this.x = x;
         this.y = y;
         this.char = char;
+        this.name = name;
         this.greeting = greeting;
         this.action = action;
     }
@@ -37,11 +38,11 @@ const player = new Player();
 const Jeff = new NPC(5, 3, "I have tons of socks for you", (display) => {
     player.goodness += 5;
     display.drawText(1, 21, "That was better than a fresh pair of socks.")
-}, "&");
+}, "&", "Jeff");
 const Janet = new NPC(7 , 7, "Please get away from me man...I'm A WOMAN I NEED HELP", (display) => {
     player.badness += 5;
     display.drawText(1, 21, "Ohhh I like a bad boy.");
-}, "J");
+}, "J", "Janet");
 const npcList = [Jeff, Janet]
 const display = new ROT.Display()
 const messageLog = [];
@@ -88,7 +89,7 @@ function isBlocked(x, y) {
 }
 
 function showInteractionMenu(npc) {
-    messageLog.push(`Interact with ${npc.char}`);
+    messageLog.push(`Interact with ${npc.name}`);
     messageLog.push("1. Talk");
     messageLog.push("2. Gift");
     messageLog.push("3. Leave");
