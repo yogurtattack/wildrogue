@@ -134,7 +134,7 @@ function checkForPortal(x, y) {
     if (tile === "E") {
         map = townMap;
         npcList = [Jeff, Janet];
-        player.x = player.house.x;
+        player.x = player.house.x - 1;
         player.y = player.house.y;
         messageLog.push("You step back into the town.");
         return true;
@@ -220,11 +220,7 @@ function handleInput(e) {
     }
 
     // Check for portal tile
-    const tile = map[newY][newX]; // ← use newX/newY, not player.x/y
-    if (tile === "D" && player.house) {
-        enterHouse();
-        return;
-    }
+    if (checkForPortal(newX, newY)) return;
 
     // Move if not blocked
     if (!isBlocked(newX, newY)) {
