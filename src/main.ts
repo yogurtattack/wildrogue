@@ -87,6 +87,35 @@ function isBlocked(x, y) {
     return false;
 }
 
+function showInteractionMenu(npc) {
+    messageLog.push(`Interact with ${npc.char}`);
+    messageLog.push("1. Talk");
+    messageLog.push("2. Gift");
+    messageLog.push("3. Leave");
+
+    draw();
+
+    function menuHandler(e) {
+        switch (e.key) {
+            case "1":
+                messageLog.push("You talk to them...");
+                npc.interact(display);
+                break;
+            case "2":
+                messageLog.push("You offer a gift....");
+                break;
+            case "3":
+                messageLog.push("You walk away.");
+                break;
+            default:
+                return;
+        }
+        window.removeEventListener("keydown", menuHandler);
+        draw();
+    }
+   window.addEventListener("keydown", menuHandler);
+}
+
 function handleInput(e) {
     // Save current position
     let newX = player.x;
@@ -101,8 +130,9 @@ function handleInput(e) {
         case "z": {
             const nearbyNPC = getAdjacentNPC(player,npcList);
             if (nearbyNPC) {
-                nearbyNPC.interact(display);
+                showInteractionMenu(nearbyNPC);
             }
+            return;
         }
         default: return;
     }
