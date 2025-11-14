@@ -3,16 +3,19 @@ import {townMap} from "./townMap.ts";
 import {house} from "./townMap.ts";
 import {office} from "./townMap.ts";
 import {Jeff} from "./npc.ts";
+import {JeffBoss} from "./npc.ts";
 import {Janet} from "./npc.ts";
 import {Player} from "./player";
 
-let map = townMap;
+
+export let map = townMap;
 const tileSize = 18;
 const display = new ROT.Display({
     width: 123,
     height: 33,
     fontSize: tileSize
 });
+
 
 
 function setTile(map, x, y, char) {
@@ -135,9 +138,9 @@ function checkForPortal(x, y) {
 
     if (tile === "O") {
         map = office;
-        npcList = [Jeff];
-        Jeff.x = 38;
-        Jeff.y = 1;
+        npcList = [JeffBoss];
+        JeffBoss.x = 38;
+        JeffBoss.y = 1;
         player.x = 1;
         player.y = 1;
         messageLog.push("Welcome back to work, please choose a cubicle.");
@@ -185,7 +188,7 @@ function showInteractionMenu(npc) {
         const index = parseInt(e.key) -1;
         const optionKey = npc.menu[index];
         if (optionKey) {
-            npc.interact(optionKey, display);
+            npc.interact(optionKey, display, player, messageLog);
         }
 
         window.removeEventListener("keydown", menuHandler);

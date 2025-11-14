@@ -1,3 +1,4 @@
+import * as ROT from "rot-js";
 export let townMap = [
     "##########################",
     "#.......................H#",
@@ -29,5 +30,16 @@ export let office = [
     "#......................................#",
     "########################################"
 ]
+
+
+export let map = townMap;
+const tileSize = 18;
+const display = new ROT.Display({
+    width: 123,
+    height: 33,
+    fontSize: tileSize
+});
+
+
 
 
