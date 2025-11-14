@@ -100,6 +100,11 @@ document.body.appendChild(display.getContainer());
 
 function draw() {
 	display.clear();
+    display.drawText(97, 0, `Name: ${player.name}`);
+    display.drawText(97, 1, `Health: ${player.health}`);
+    display.drawText(97,  2,`Hunger: ${player.hunger}`);
+    display.drawText(97, 3, `Coins: ${player.coinage}`);
+
     for (let y = 0; y < map.length; y++) {
         const row = map[y];
         for (let x = 0; x < row.length; x++){
@@ -125,6 +130,7 @@ function draw() {
     for (let i = 0; i < messageLog.length; i++) {
         display.drawText(1, 20 +i, messageLog[i]);
     }
+
 }
 
 const name = window.prompt("Name your adventurer:");
@@ -153,6 +159,27 @@ function enterHouse() {
         }
     }
 }
+let workTick = 0;
+let hasStartedWork = false;
+function doWork() {
+    const tile = map[player.y][player.x];
+    if (tile === "C") {
+        workTick++;
+
+        if (!hasStartedWork) {
+            messageLog.push("Started Work");
+            hasStartedWork = true;
+        }
+        if (workTick >= 300){
+            workTick = 0;
+            messageLog.push("Whoa, momma Big Money")
+            player.coinage++;
+            }
+    } else {
+        workTick = 0;
+        hasStartedWork = false;
+    }
+}
 
 function checkForPortal(x, y) {
     draw();
@@ -168,8 +195,8 @@ function checkForPortal(x, y) {
         npcList = [Jeff, Janet];
         Jeff.x = 5;
         Jeff.y = 3;
-        player.x = player.house.x - 1;
-        player.y = player.house.y;
+        player.x = 1;
+        player.y = 1;
         messageLog.push("You step back into the town.");
         return true;
     }
@@ -184,6 +211,7 @@ function checkForPortal(x, y) {
         messageLog.push("Welcome back to work, please choose a cubicle.");
         return true;
     }
+
     return false;
 }
 
@@ -233,6 +261,8 @@ function showInteractionMenu(npc) {
     }
    window.addEventListener("keydown", menuHandler);
 }
+
+
 
 function handleInput(e) {
     // Save current position
@@ -305,6 +335,7 @@ let hungerTick = 0;
 
 function gameLoop() {
     draw();
+    doWork();
 
     hungerTick++;
     if (hungerTick >= 300) {
@@ -315,6 +346,11 @@ function gameLoop() {
             messageLog.push("You feel faint from hunger.")
             player.health --;
         }
+    }
+    if (player.health <= 0){
+        messageLog.push("You collapse from exhaustion...  Your journey comes to an end.");
+        window.removeEventListener("keydown", handleInput);
+        cancelAnimationFrame(gameLoop);
     }
     requestAnimationFrame(gameLoop);
 }
