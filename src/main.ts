@@ -3,7 +3,7 @@ import {townMap} from "./townMap.ts";
 import {house} from "./townMap.ts";
 import {office} from "./townMap.ts";
 import {Jeff} from "./npc.ts";
-import {JeffBoss} from "./npc.ts";
+import {JeffBoss, computePathToPlayer} from "./npc.ts";
 import {Janet} from "./npc.ts";
 import {Player} from "./player";
 
@@ -113,6 +113,58 @@ function doWork() {
     } else {
         workTick = 0;
         hasStartedWork = false;
+    }
+}
+
+function sendJeffAfterPlayer() {
+    const path = computePathToPlayer(player, map, JeffBoss);
+    JeffBoss.nextPath = path;
+
+}
+
+function moveJeff() {
+    if (Array.isArray(JeffBoss.nextPath) && JeffBoss.nextPath.length > 1) {
+        JeffBoss.nextPath.shift();
+        const [x, y] = JeffBoss.nextPath[0];
+        JeffBoss.x = x;
+        JeffBoss.y = y;
+    }
+}
+
+let outWork = 0;
+let chaseTick = 0;
+let jeffChasing = false;
+const jeffStart = { x: JeffBoss.x, y: JeffBoss.y };
+
+function outOffice() {
+    outWork++;
+
+    if (player.tile === "C") {
+        outWork = 0;
+        jeffChasing = false;
+        return;
+    }
+
+    if (outWork >= 10 && !jeffChasing) {
+        messageLog.push("GET TO YOUR CUBICLE! NOW");
+        JeffBoss.nextPath = computePathToPlayer(player, map, JeffBoss);
+        jeffChasing = true;
+    }
+
+    if (jeffChasing) {
+        JeffBoss.nextPath = computePathToPlayer(player, map, JeffBoss);
+        moveJeff();
+
+        if (JeffBoss.x === player.x && JeffBoss.y === player.y) {
+            messageLog.push("JeffBoss bonks you on the head!");
+            player.health -= 50;
+
+            JeffBoss.x = jeffStart.x;
+            JeffBoss.y = jeffStart.y;
+            JeffBoss.nextPath = [];
+            jeffChasing = false;
+            outWork = 0;
+        }
     }
 }
 
@@ -271,6 +323,7 @@ let hungerTick = 0;
 function gameLoop() {
     draw();
     doWork();
+    outOffice();
 
     hungerTick++;
     if (hungerTick >= 300) {
@@ -288,6 +341,7 @@ function gameLoop() {
         cancelAnimationFrame(gameLoop);
     }
     requestAnimationFrame(gameLoop);
+    console.log("JeffBoss at:", JeffBoss.x, JeffBoss.y);
 }
 
 window.addEventListener("keydown", handleInput);

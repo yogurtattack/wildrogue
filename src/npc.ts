@@ -1,3 +1,5 @@
+import * as ROT from "rot-js";
+
 class NPC {
     constructor(x,y, dialogue = {}, menu = [],  action = null, char = "", name = "") {
         this.x = x;
@@ -76,3 +78,34 @@ export const JeffBoss = new NPC("Jeff", "boss", {
     }
 
 }, "&", "Jeff")
+
+export function computePathToPlayer(player, map, jeff) {
+    const passableCallback = (x,y) => map[y][x] !== "#";
+
+    const astar = new ROT.Path.AStar(player.x,player.y, passableCallback);
+
+    const path: [number, number][] = [];
+    astar.compute(jeff.x, jeff.y, (x,y) => {
+        path.push([x, y]);
+    })
+    path.pop();
+    return path;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
