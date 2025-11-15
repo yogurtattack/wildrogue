@@ -61,7 +61,7 @@ export const Janet = new NPC(24 , 6, {
     "Gift": "Janet blushes. 'I guess I'll take it.'",
     "Buy Food": "Janet grumbles, 'Fine. Here's some stew.'",
     "Leave": "Janet scoffs and walks off."
-}, ["Talk", "Gift", "Buy Food", "Leave"], function(optionKey, display) {
+}, ["Talk", "Gift", "Buy Food", "Leave"], function(optionKey, display, player, messageLog) {
     if (optionKey === "Buy Food") {
         if (player.coinage >= 10) {
             player.coinage -= 10;

@@ -108,7 +108,8 @@ function doWork() {
         if (workTick >= 300){
             workTick = 0;
             messageLog.push("Whoa, momma Big Money")
-            player.coinage++;
+            player.coinage = player.coinage + 5;
+            player.hunger = player.hunger - 10;
             }
     } else {
         workTick = 0;
@@ -140,8 +141,10 @@ function updateJeff() {
 
     switch (jeffState) {
         case JeffState.Idle:
-            if(tile !== "C") outWork++;
-            if (outWork >= 3000) {
+            outWork++;
+            if(tile !== "C")
+            if (outWork >= 600) {
+                outWork++;
                 messageLog.push("GET TO YOUR CUBICLE!  NOW!");
                 jeffState = JeffState.Chasing;
             }
@@ -180,12 +183,13 @@ function checkForPortal(x, y) {
 
     if (tile === "E") {
         map = townMap;
-        npcList = [Jeff, Janet, JeffBoss];
+        npcList = [Jeff, Janet];
         Jeff.x = 5;
         Jeff.y = 3;
         player.x = 1;
         player.y = 1;
         messageLog.push("You step back into the town.");
+        draw();
         return true;
     }
 
@@ -196,6 +200,11 @@ function checkForPortal(x, y) {
         return true;
     }
 
+    if (tile === "B") {
+        player.health = 100;
+        messageLog.push("You rest your sweet little head in your bed. You feel refreshed.")
+    }
+
     return false;
 }
 
@@ -204,7 +213,7 @@ function enterOfficeScene() {
     npcList = [JeffBoss];
     JeffBoss.x = 38;
     JeffBoss.y = 1;
-    outWork = 0;
+    //outWork = 0;
     jeffState = JeffState.Idle;
     messageLog.push("Welcome...GET BACK TO WORK");
     draw();
@@ -290,8 +299,8 @@ function handleInput(e) {
             if (index !== -1) {
                 player.inventory.splice(index, 1);
                 player.hunger = Math.min(player.hunger + 30, 100);
-                messageLog.push("You eat the stew.  Warmth fills your bell.");
-                player.health = player.health + 50;
+                messageLog.push("You eat the stew.  It's not very good. -10 Health");
+                player.health = player.health - 10;
             } else {
                 messageLog.push("No food to eat....try buying some from Janet.");
             }
