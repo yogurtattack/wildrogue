@@ -141,19 +141,30 @@ function updateJeff() {
     switch (jeffState) {
         case JeffState.Idle:
             if(tile !== "C") outWork++;
-            if (outWork >= 10) {
+            if (outWork >= 3000) {
                 messageLog.push("GET TO YOUR CUBICLE!  NOW!");
                 jeffState = JeffState.Chasing;
             }
             break;
         case JeffState.Chasing:
-            JeffBoss.nexPath = computePathToPlayer(player, map, JeffBoss);
+            JeffBoss.nextPath = computePathToPlayer(player, map, JeffBoss);
             moveJeff();
+            const dx = Math.abs(JeffBoss.x - player.x);
+            const dy = Math.abs(JeffBoss.y - player.y);
+            if (dx + dy <= 1) {
+                messageLog.push("JeffBoss bonks you on the head!");
+                player.health -= 50;
+                jeffState = JeffState.Reset;
+            }
             break;
         case JeffState.Reset:
             JeffBoss.x = jeffStart.x;
             JeffBoss.y = jeffStart.y;
+            JeffBoss.nextPath = [];
             outWork = 0;
+            jeffState = JeffState.Idle;
+            messageLog.push("JeffBoss returns to his office.");
+            enterOfficeScene();
             break;
     }
 }
@@ -169,7 +180,7 @@ function checkForPortal(x, y) {
 
     if (tile === "E") {
         map = townMap;
-        npcList = [Jeff, Janet];
+        npcList = [Jeff, Janet, JeffBoss];
         Jeff.x = 5;
         Jeff.y = 3;
         player.x = 1;
@@ -179,17 +190,24 @@ function checkForPortal(x, y) {
     }
 
     if (tile === "O") {
-        map = office;
-        npcList = [JeffBoss];
-        JeffBoss.x = 38;
-        JeffBoss.y = 1;
+        enterOfficeScene();
         player.x = 1;
         player.y = 1;
-        messageLog.push("Welcome back to work, please choose a cubicle.");
         return true;
     }
 
     return false;
+}
+
+function enterOfficeScene() {
+    map = office;
+    npcList = [JeffBoss];
+    JeffBoss.x = 38;
+    JeffBoss.y = 1;
+    outWork = 0;
+    jeffState = JeffState.Idle;
+    messageLog.push("Welcome...GET BACK TO WORK");
+    draw();
 }
 
 
