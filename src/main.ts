@@ -140,13 +140,18 @@ function updateJeff() {
     const tile = map[player.y][player.x];
 
     switch (jeffState) {
-        case JeffState.Idle:
-            outWork++;
-            if(tile !== "C")
-            if (outWork >= 600) {
+
+        case JeffState.Idle:{
+            if (tile !== "C") {
                 outWork++;
-                messageLog.push("GET TO YOUR CUBICLE!  NOW!");
-                jeffState = JeffState.Chasing;
+                if (outWork >= 600) {
+                    messageLog.push("GET TO YOUR CUBICLE!  NOW!");
+                    jeffState = JeffState.Chasing;
+                    outWork = 0;
+                }
+                } else {
+                    outWork = 0;
+                }
             }
             break;
         case JeffState.Chasing:
@@ -164,7 +169,7 @@ function updateJeff() {
             JeffBoss.x = jeffStart.x;
             JeffBoss.y = jeffStart.y;
             JeffBoss.nextPath = [];
-            outWork = 0;
+            //outWork = 0;
             jeffState = JeffState.Idle;
             messageLog.push("JeffBoss returns to his office.");
             enterOfficeScene();
@@ -357,7 +362,7 @@ function gameLoop() {
         cancelAnimationFrame(gameLoop);
     }
     requestAnimationFrame(gameLoop);
-    console.log("JeffBoss at:", JeffBoss.x, JeffBoss.y);
+    console.log(outWork);
 }
 
 window.addEventListener("keydown", handleInput);
