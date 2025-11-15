@@ -121,7 +121,7 @@ function sendJeffAfterPlayer() {
     JeffBoss.nextPath = path;
 
 }
-
+let outWork = 0;
 function moveJeff() {
     if (Array.isArray(JeffBoss.nextPath) && JeffBoss.nextPath.length > 1) {
         JeffBoss.nextPath.shift();
@@ -131,40 +131,30 @@ function moveJeff() {
     }
 }
 
-let outWork = 0;
-let chaseTick = 0;
-let jeffChasing = false;
+enum JeffState { Idle, Chasing, Reset}
+let jeffState = JeffState.Idle;
 const jeffStart = { x: JeffBoss.x, y: JeffBoss.y };
 
-function outOffice() {
-    outWork++;
+function updateJeff() {
+    const tile = map[player.y][player.x];
 
-    if (player.tile === "C") {
-        outWork = 0;
-        jeffChasing = false;
-        return;
-    }
-
-    if (outWork >= 10 && !jeffChasing) {
-        messageLog.push("GET TO YOUR CUBICLE! NOW");
-        JeffBoss.nextPath = computePathToPlayer(player, map, JeffBoss);
-        jeffChasing = true;
-    }
-
-    if (jeffChasing) {
-        JeffBoss.nextPath = computePathToPlayer(player, map, JeffBoss);
-        moveJeff();
-
-        if (JeffBoss.x === player.x && JeffBoss.y === player.y) {
-            messageLog.push("JeffBoss bonks you on the head!");
-            player.health -= 50;
-
+    switch (jeffState) {
+        case JeffState.Idle:
+            if(tile !== "C") outWork++;
+            if (outWork >= 10) {
+                messageLog.push("GET TO YOUR CUBICLE!  NOW!");
+                jeffState = JeffState.Chasing;
+            }
+            break;
+        case JeffState.Chasing:
+            JeffBoss.nexPath = computePathToPlayer(player, map, JeffBoss);
+            moveJeff();
+            break;
+        case JeffState.Reset:
             JeffBoss.x = jeffStart.x;
             JeffBoss.y = jeffStart.y;
-            JeffBoss.nextPath = [];
-            jeffChasing = false;
             outWork = 0;
-        }
+            break;
     }
 }
 
@@ -323,8 +313,7 @@ let hungerTick = 0;
 function gameLoop() {
     draw();
     doWork();
-    outOffice();
-
+    updateJeff();
     hungerTick++;
     if (hungerTick >= 300) {
         hungerTick = 0;
