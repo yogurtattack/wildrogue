@@ -1,4 +1,5 @@
 import * as ROT from "rot-js";
+import {townMap} from "./townMap";
 
 class NPC {
     constructor(x,y, dialogue = {}, menu = [],  action = null, char = "", name = "") {
@@ -27,17 +28,23 @@ class NPC {
     }
     }
 
+let map = townMap;
+
+function setTile(map, x, y, char) {
+    map[y] = map[y].substring(0,x) + char + map[y].substring(x + 1);
+}
+
 export const Jeff = new NPC(5, 3, {
-    "Talk": "Jeff says: 'Socks are the backbone of this economy.'",
+    "Talk": "Jeff says: 'Socks are the backbone of this economy.  Are you late for work?'",
     "Buy House": "Jeff nods. 'That'll be 50 coins.'",
     "Leave": "Jeff turns away silently."
-},["Talk", "Buy House", "Leave"], function(optionKey, display) {
+},["Talk", "Buy House", "Leave"], function(optionKey, display, player, messageLog) {
     if (optionKey === "Buy House") {
         if (player.coinage >= 50 && !player.house) {
             messageLog.push("Coin deduction triggered.");
             player.coinage -= 50;
             player.house = {x: 25, y:1};
-            setTile(map, 24, 1, "D");
+            setTile(townMap, 24, 1, "D");
             messageLog.push("You now own a house!");
         } else if (player.house) {
             messageLog.push("Jeff: 'You already own property. Buy some socks.");
