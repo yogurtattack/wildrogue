@@ -241,7 +241,7 @@ function checkForPortal(x, y) {
         map = secondHouseUpper;
         messageLog.push("You go upstairs.");
         player.x = 21;
-        player.y = 5;
+        player.y = 4;
         draw();
 
     }
