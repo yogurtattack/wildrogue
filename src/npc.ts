@@ -1,5 +1,5 @@
 import * as ROT from "rot-js";
-import {townMap} from "./townMap";
+import {firstHouse, townMap} from "./townMap";
 
 class NPC {
     constructor(x,y, dialogue = {}, menu = [],  action = null, char = "", name = "") {
@@ -43,7 +43,7 @@ export const Jeff = new NPC(5, 3, {
         if (player.coinage >= 50 && !player.house) {
             messageLog.push("Coin deduction triggered.");
             player.coinage -= 50;
-            player.house = {x: 25, y:1};
+            player.firstHouse = {x: 25, y:1};
             setTile(townMap, 24, 1, "D");
             messageLog.push("You now own a house!");
         } else if (player.house) {
@@ -53,6 +53,28 @@ export const Jeff = new NPC(5, 3, {
         }
     }
 }, "&", "Jeff")
+
+export const Johnson = new NPC(4, 3, {
+    "Talk": "Johnson whispers at you: 'Pardon the intrusion, but this house is much to small for you, no?",
+    "Buy Townhouse": "Johnson smiles, 'A fine choice! That will be 150 coins.'",
+    "Leave": "Johnson nods and walks off."
+}, ["Talk", "Buy Townhouse", "Leave"], function(optionKey, display, player, messageLog) {
+    if (optionKey === "Buy Townhouse") {
+        if (player.coinage >= 150 && !player.townhouse) {
+            messageLog.push("Coin deduction triggered.");
+            player.coinage -= 150;
+            player.secondHouse = {x: 25, y:1};
+            setTile(townMap, 24, 2, "T");
+            messageLog.push("You now own a townhouse!");
+        } else if (player.townhouse) {
+            messageLog.push("Johnson: 'You already own property. Perhaps a sock investment?'");
+        } else {
+            messageLog.push("Johnson: 'Come Back with you have the coin.'");
+        }
+    }
+}, "+", "Johnson")
+
+
 
 
 

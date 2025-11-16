@@ -1,10 +1,6 @@
 import * as ROT from "rot-js";
-import {townMap} from "./townMap.ts";
-import {house} from "./townMap.ts";
-import {office} from "./townMap.ts";
-import {Jeff} from "./npc.ts";
-import {JeffBoss, computePathToPlayer} from "./npc.ts";
-import {Janet} from "./npc.ts";
+import {secondHouse, secondHouseUpper, townMap, firstHouse, office} from "./townMap.ts";
+import {JeffBoss, computePathToPlayer, Janet, Jeff, Johnson} from "./npc.ts";
 import {Player} from "./player";
 
 
@@ -77,22 +73,46 @@ if (name) {
     messageLog.push("Starts adventure with boring name.");
 };
 
-function enterHouse() {
-    map = house;
+function enterHouse(x: number, y: number): boolean {
+    const tile = map[y][x];
+
+    if (tile === "D") {
+        if (!player.firstHouse) {
+            messageLog.push("You don't own this house.");
+            return false;
+        }
+        map = firstHouse;
+        houseNPCList = [];
+        if (player.coinage >= 200) {
+            houseNPCList = [Johnson];
+        }
+    } else if (tile === "T") {
+        if (!player.secondHouse) {
+            messageLog.push("You don't own this house.");
+            return false;
+        }
+        map = secondHouse;
+        houseNPCList = [];
+    } else {
+        return false;
+    }
     npcList = houseNPCList;
-    player.x = 1;
-    player.y = 1;
     messageLog.push("You enter your house.");
-    for (let y = 0; y < map.length; y++) {
-        for (let x = 0; x < map[y].length; x++) {
-            if (map[y][x] === "@") {
-                player.x = x;
-                player.y = y;
-                setTile(map, x, y, ">");
-                return;
+    for (let yy = 0; yy < map.length; yy++) {
+        for (let xx = 0; xx < map[yy].length; xx++) {
+            if (map[yy][xx] === "@") {
+                player.x = xx;
+                player.y = yy;
+                setTile(map, xx, yy, ">");
+                draw();
+                return true;
             }
         }
     }
+    player.x = 1;
+    player.y = 1;
+    draw();
+    return true;
 }
 let workTick = 0;
 let hasStartedWork = false;
@@ -108,7 +128,7 @@ function doWork() {
         if (workTick >= 300){
             workTick = 0;
             messageLog.push("Whoa, momma Big Money")
-            player.coinage = player.coinage + 5;
+            player.coinage = player.coinage + 100;
             player.hunger = player.hunger - 10;
             }
     } else {
@@ -137,6 +157,7 @@ let jeffState = JeffState.Idle;
 const jeffStart = { x: JeffBoss.x, y: JeffBoss.y };
 
 function updateJeff() {
+    if (map !== office) return;
     const tile = map[player.y][player.x];
 
     switch (jeffState) {
@@ -181,9 +202,10 @@ function checkForPortal(x, y) {
     draw();
     const tile = map[y][x];
 
-    if (tile === "D" && player.house) {
-        enterHouse();
-        return true;
+    if (tile === "D" || tile === "T") {
+        if (enterHouse(x, y))  return true;
+        return false;
+
     }
 
     if (tile === "E") {
@@ -208,6 +230,26 @@ function checkForPortal(x, y) {
     if (tile === "B") {
         player.health = 100;
         messageLog.push("You rest your sweet little head in your bed. You feel refreshed.")
+    }
+
+    if (tile === "F") {
+        player.hunger = 100;
+        messageLog.push("You feast on the delicious food before you. You feel satiated.")
+    }
+
+    if (tile === ">") {
+        map = secondHouseUpper;
+        messageLog.push("You go upstairs.");
+        player.x = 21;
+        player.y = 5;
+        draw();
+
+    }
+
+    if (tile === "<") {
+        map = secondHouse;
+        messageLog.push("You go downstairs.");
+
     }
 
     return false;

@@ -1,4 +1,16 @@
 export class Player {
+    x: number;
+    y: number;
+    inventory: string[];
+    coinage: number;
+    health: number;
+    hunger: number;
+    goodness: number;
+    badness: number;
+    name: string;
+    firstHouse: boolean;
+    secondHouse: boolean;
+
     constructor() {
         this.x = 1;
         this.y = 1;
@@ -9,5 +21,7 @@ export class Player {
         this.goodness = 0;
         this.badness = 0;
         this.name = "";
+        this.firstHouse;
+        this.secondHouse;
     }
 }
